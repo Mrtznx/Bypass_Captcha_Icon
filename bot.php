@@ -52,22 +52,25 @@ function Run($url, $head = 0, $post = 0){
 }
 
 function h($xml=0){
+	$cookie = "uuid=Pc52a2849-732d-4765-841f-e77c93672648; fpestid=5NW1PcYsGEgVC-uuSb9HopTJ3bpiCyDaXQGHd7qFvhdhfLTZn-PnkjD8KfPlWMfDDueZTQ; PHPSESSID=693sr0e6ej4hiu53n642eidf54; SesHashKey=8eo3lc1i6yd4c7fa; SesToken=ses_id%3D726%26ses_key%3D8eo3lc1i6yd4c7fa; AccExist=726";
 	if($xml){
 		$h[] = "x-requested-with: XMLHttpRequest";
 	}
-	$h[] = "cookie: uuid=P9720acd2-1889-49ec-bb5e-3515ef7343a8; _gid=GA1.2.1540950725.1650469545; PHPSESSID=idu82es4bbg7n53kh11nuo771m; bitmedia_fid=eyJmaWQiOiI2ZDJkZGRkNDAxOGFmYmRmNThmNTA5MDkxNjEzN2I0MyIsImZpZG5vdWEiOiJhZjA3MGM0YmMxOWIwNjEwNDMxN2U0NzdhYzNmODVkYyJ9; SesHashKey=9my8gg711q26ywr2; SesToken=ses_id%3D113126%26ses_key%3D9my8gg711q26ywr2; AccExist=113126; __cf_bm=xugP36RvihZjln1Z2uvJQdv2j_4OOvD_qVj0WJoM5Fg-1650553363-0-AbeGSFttmszH9aTXH0YxgCKvfkagNE1Wg6mAF8elHkVmGzfBkOqysF6c3Hsqx0C6X4YW6FhCqPKq7rzK6kEKvVYaCiIcTkJp7L55/cf/XN0aL7TVO3t4QyhQcRmeNEcNYQ==; cf_clearance=xSmL2dXD7mZfRJzEMQ9nU9TqvlGSAULw0._m0R_TFpk-1650554582-0-150; _ga_J2L7YD89W2=GS1.1.1650551428.8.1.1650554601.0; _ga=GA1.2.1908897154.1649118303; _gat_gtag_UA_133726835_1=1";
+	$h[] = "cookie: ".$cookie;
 	$h[] = "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36";
 	return $h;
 }
 
 $line = u.str_repeat('~',50)."\n";
 
-$r = Run('https://claimbits.net/faucet.html', h());
+$host = "claimbit.com";
 
-//<font class="text-success">iewilmaestro</font>
-$user = explode('</font>',explode('<font class="text-success">',$r)[1])[0];
-//<div class="text-primary"><b>945.58 Bits</b>
-$balance = explode('</b>',explode('<div class="text-primary"><b>',$r)[1])[0];
+$r = Run('https://'.$host, h());
+
+//<a href="/membership.html" class="text-success">iewilmaestro</a>
+$user = explode('</a>',explode('<a href="/membership.html" class="text-success">',$r)[1])[0];
+//<b id="sidebarCoins">5.00 Coins</b>
+$balance = explode('</b>',explode('<b id="sidebarCoins">',$r)[1])[0];
 
 print h."Login as : ".k.$user."\n";
 print h."Balance  : ".k.$balance."\n";
@@ -75,7 +78,7 @@ print $line;
 
 ptc:
 //halaman ptc
-$r = Run('https://claimbits.net/ptc.html',h());
+$r = Run('https://'.$host.'/ptc.html',h());
 //<div class="website_block" id="584">
 $sid = explode('">',explode('<div class="website_block" id="',$r)[1])[0];
 //childWindow = open(base + '/surf.php?sid=' + a + '&key=dd50333255e11580407d36d42d8c7a2e', b);
@@ -83,7 +86,7 @@ $key = explode("'",explode('&key=',$r)[1])[0];
 
 if($sid){
 	//halaman ads
-	$r = Run('https://claimbits.net/surf.php?sid='.$sid.'&key='.$key,h());
+	$r = Run('https://'.$host.'/surf.php?sid='.$sid.'&key='.$key,h());
 	//var token = 'e182f69331ccbc63334cfdec1e6a0a1a6c9ea7e3695edc0f308fc4c038a3e0c5';
 	$token = explode("';",explode("var token = '",$r)[1])[0];
 	$timer = explode(';',explode('var secs = ',$r)[1])[0];
@@ -96,14 +99,14 @@ if($sid){
 
 	while(true){
 		$data = "cID=0&rT=1&tM=light";
-		$res = Run('https://claimbits.net/system/libs/captcha/request.php',h(1),$data);
+		$res = Run('https://'.$host.'/system/libs/captcha/request.php',h(1),$data);
 		$cap = json_decode($res)[3];
 
 		$data = "cID=0&pC=".$cap."&rT=2";
-		Run('https://claimbits.net/system/libs/captcha/request.php',h(1),$data);
+		Run('https://'.$host.'/system/libs/captcha/request.php',h(1),$data);
 
 		$data = "a=proccessPTC&data=".$sid."&token=".$token."&captcha-idhf=0&captcha-hf=".$cap;
-		$r = Run('https://claimbits.net/system/ajax.php',h(),$data);
+		$r = Run('https://'.$host.'/system/ajax.php',h(),$data);
 		/*
 		$r = json_decode($r);
 		stdClass Object
@@ -147,9 +150,9 @@ if($sid){
 }else{
 	print m."ptc habis\n";
 	print $line;
-	$r = Run('https://claimbits.net/faucet.html', h());
+	$r = Run('https://'.$host, h());
 	//<div class="text-primary"><b>945.58 Bits</b>
-	$balance = explode('</b>',explode('<div class="text-primary"><b>',$r)[1])[0];
+	$balance = explode('</b>',explode('<b id="sidebarCoins">',$r)[1])[0];
 	print h."New Balance  : ".k.$balance."\n";
 	print $line;
 	exit;
