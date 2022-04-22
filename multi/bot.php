@@ -1,6 +1,6 @@
 <?php
 error_reporting(0);
-//system('clear');
+system('clear');
 
 #Code Warna
 const
@@ -76,33 +76,58 @@ foreach($hos as $cok){
 	$name = explode('.',$cok)[0];
 	Save('Cookie_'.$name);
 }
+system('clear');
+
+
+//banner
+print h."Script By ".p."iewil\n";
+print $line;
 
 foreach($hos as $host){
-	$name = explode('.',$host)[0];
+	print h."Host     : ".k.trim($host)."\n";
+	$name = explode('.',trim($host))[0];
 	$cookie = Save('Cookie_'.$name);
 	
-	$r = Run('https://'.$host, h($cookie));
-
+	$r = Run('https://'.trim($host), h($cookie));
+	
 	//<a href="/membership.html" class="text-success">iewilmaestro</a>
 	$user = explode('</a>',explode('<a href="/membership.html" class="text-success">',$r)[1])[0];
+	if($user<=null){
+		//siteUserFullName: 'iewilmaestro <
+		$user = explode('<',explode("siteUserFullName: '",$r)[1])[0];
+		if($user<=null){
+			//<font class="text-success">iewilmaestro</font>
+			$user = explode('</font>',explode('<font class="text-success">',$r)[1])[0];
+		}
+	}
 	//<b id="sidebarCoins">5.00 Coins</b>
 	$balance = explode('</b>',explode('<b id="sidebarCoins">',$r)[1])[0];
-
+	if($balance<=null){
+		//<b style=" color: #5bcaff; ">71 Coins</b>
+		$balance = explode('</b>',explode('<b style=" color: #5bcaff; ">',$r)[1])[0];
+		if($balance<=null){
+			//<div class="text-primary"><b>68.00 Coins</b>
+			$balance = explode('</b>',explode('<div class="text-primary"><b>',$r)[1])[0];
+		}
+	}
 	print h."Login as : ".k.$user."\n";
 	print h."Balance  : ".k.$balance."\n";
 	print $line;
 
 	ptc:
 	//halaman ptc
-	$r = Run('https://'.$host.'/ptc.html',h($cookie));
+	$r = Run('https://'.trim($host).'/?page=ptc',h($cookie));
+	if($r<=null){
+		$r = Run('https://'.trim($host).'/ptc.html',h($cookie));
+	}
 	//<div class="website_block" id="584">
-	$sid = explode('">',explode('<div class="website_block" id="',$r)[1])[0];
+	$sid = explode('"',explode('<div class="website_block" id="',$r)[1])[0];
 	//childWindow = open(base + '/surf.php?sid=' + a + '&key=dd50333255e11580407d36d42d8c7a2e', b);
 	$key = explode("'",explode('&key=',$r)[1])[0];
-
+	
 	if($sid){
 		//halaman ads
-		$r = Run('https://'.$host.'/surf.php?sid='.$sid.'&key='.$key,h($cookie));
+		$r = Run('https://'.trim($host).'/surf.php?sid='.$sid.'&key='.$key,h($cookie));
 		//var token = 'e182f69331ccbc63334cfdec1e6a0a1a6c9ea7e3695edc0f308fc4c038a3e0c5';
 		$token = explode("';",explode("var token = '",$r)[1])[0];
 		$timer = explode(';',explode('var secs = ',$r)[1])[0];
@@ -115,14 +140,14 @@ foreach($hos as $host){
 
 		while(true){
 			$data = "cID=0&rT=1&tM=light";
-			$res = Run('https://'.$host.'/system/libs/captcha/request.php',h($cookie,1),$data);
+			$res = Run('https://'.trim($host).'/system/libs/captcha/request.php',h($cookie,1),$data);
 			$cap = json_decode($res)[3];
 
 			$data = "cID=0&pC=".$cap."&rT=2";
-			Run('https://'.$host.'/system/libs/captcha/request.php',h($cookie,1),$data);
+			Run('https://'.trim($host).'/system/libs/captcha/request.php',h($cookie,1),$data);
 
 			$data = "a=proccessPTC&data=".$sid."&token=".$token."&captcha-idhf=0&captcha-hf=".$cap;
-			$r = Run('https://'.$host.'/system/ajax.php',h($cookie),$data);
+			$r = Run('https://'.trim($host).'/system/ajax.php',h($cookie),$data);
 			/*
 			$r = json_decode($r);
 			stdClass Object
@@ -165,13 +190,19 @@ foreach($hos as $host){
 		}
 	}else{
 		print m."ptc habis\n";
-		print $line;
-		$r = Run('https://'.$host, h($cookie));
+		$r = Run('https://'.trim($host), h($cookie));
 		//<div class="text-primary"><b>945.58 Bits</b>
 		$balance = explode('</b>',explode('<b id="sidebarCoins">',$r)[1])[0];
+		if($balance<=null){
+			//<b style=" color: #5bcaff; ">71 Coins</b>
+			$balance = explode('</b>',explode('<b style=" color: #5bcaff; ">',$r)[1])[0];
+			if($balance<=null){
+				//<div class="text-primary"><b>68.00 Coins</b>
+				$balance = explode('</b>',explode('<div class="text-primary"><b>',$r)[1])[0];
+			}
+		}
 		print h."New Balance  : ".k.$balance."\n";
 		print $line;
-		exit;
 	}
 }
 
